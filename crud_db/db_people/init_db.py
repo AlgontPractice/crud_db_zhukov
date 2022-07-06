@@ -62,18 +62,40 @@ async def create_table(engine):
                                   last_name varchar(255))''')
 
 
+async def add(engine, person: dict) -> str:
+    async with engine.acquire() as conn:
+        await conn.execute(peop.insert().values(first_name=person['first_name'], last_name=person['last_name']))
+        x = 0
+        async for row in conn.execute(peop.select().where(peop.c.first_name == person['first_name'])):
+            if x < row.id:
+                x = row.id
+        return x
+async def set(engine, person: dict):
+    async with engine.acquire() as conn:
+        await conn.execute("UPDATE peop SET ...")
+
+async def get_all(engine):
+    async with engine.acquire() as conn:
+        async for row in conn.execute(peop.select()):
+            print(row.id, row.first_name, row.last_name)
+
 async def go():
     async with create_engine(user='postgres',
                              database='people_onion',
                              host='192.168.1.245',
                              password='postgres') as engine:
         await create_table(engine)
-        async with engine.acquire() as conn:
-            await conn.execute(peop.insert().values(first_name='Andrew', last_name='Star'))
-            await conn.execute(peop.insert().values(first_name='Andrew', last_name='Star'))
 
-            async for row in conn.execute(peop.select()):
-                print(row.id, row.first_name, row.last_name)
+        await add(engine, {"first_name": "Andrew", "last_name": "Star"})
+        await add(engine, {"first_name": "Andr3ew", "last_name": "Sta4r"})
+
+        # async with engine.acquire() as conn:
+        #     await conn.execute(peop.insert().values(first_name='Andrew', last_name='Star'))
+        #     await conn.execute(peop.insert().values(first_name='Andrew', last_name='Star'))
+        #
+        #     async for row in conn.execute(peop.select()):
+        #         print(row.id, row.first_name, row.last_name)
+        await get_all(engine)
 
 
 loop = asyncio.get_event_loop()
