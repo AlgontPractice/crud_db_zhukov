@@ -11,25 +11,9 @@ import aiohttp_cors
 from aiohttp import web
 
 from db_people.init_db import
-from db_people..scanner import Scanner
 
 logger = logging.getLogger('app')
 
-
-async def task_init_device(scanner_port: Scanner):
-    """
-    Task for init camera
-
-    Args:
-        :param scanner_port:
-    """
-    while True:
-        await asyncio.sleep(1)
-        try:
-            await scanner_port.init_device()  # пытаемся подключиться к камере раз в секунду
-            break
-        except Exception:  # pylint: disable = broad-except
-            logger.exception('Error init video stream')
 
 
 # pylint: disable = too-many-statements
