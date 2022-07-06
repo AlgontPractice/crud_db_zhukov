@@ -1,4 +1,4 @@
-import asyncio
+import sys, asyncio
 from aiopg.sa import create_engine
 import sqlalchemy as sa
 
@@ -6,7 +6,8 @@ import sqlalchemy as sa
 metadata = sa.MetaData()
 
 
-
+if sys.version_info >= (3, 8) and sys.platform.lower().startswith("win"):
+    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 async def go():
     async with create_engine(user='postgres',
                              database='people_onion',

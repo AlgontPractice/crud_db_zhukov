@@ -39,39 +39,42 @@
 #
 #
 # create_db()
-import asyncio
+import sys, asyncio
 from aiopg.sa import create_engine
 import sqlalchemy as sa
 
-
+if sys.version_info >= (3, 8) and sys.platform.lower().startswith("win"):
+    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 metadata = sa.MetaData()
 
+peop = sa.Table('peop', metadata,
+                sa.Column('id', sa.Integer, primary_key=True),
+                sa.Column('first_name', sa.String(255)),
+                sa.Column('last_name', sa.String(255)))
 
 
-
-# async def create_table(engine):
-#     async with engine.acquire() as conn:
-#         await conn.execute('DROP TABLE IF EXISTS tbl')
-#         await conn.execute('''CREATE TABLE tbl (
-#                                   id serial PRIMARY KEY,
-#                                   val varchar(255))''')
+async def create_table(engine):
+    async with engine.acquire() as conn:
+        await conn.execute('DROP TABLE IF EXISTS peop')
+        await conn.execute('''CREATE TABLE peop (
+                                  id serial PRIMARY KEY,
+                                  first_name varchar(255),
+                                  last_name varchar(255))''')
 
 
 async def go():
-    print(000000000000)
     async with create_engine(user='postgres',
                              database='people_onion',
                              host='192.168.1.245',
                              password='postgres') as engine:
-        print(1111)
-        # await create_table(engine)
+        await create_table(engine)
         async with engine.acquire() as conn:
-            print(898989)
-            # await conn.execute(tbl.insert().values(val='abc'))
-            #
-            # async for row in conn.execute(tbl.select()):
-            #     print(row.id, row.val)
+            await conn.execute(peop.insert().values(first_name='Andrew', last_name='Star'))
+            await conn.execute(peop.insert().values(first_name='Andrew', last_name='Star'))
+
+            async for row in conn.execute(peop.select()):
+                print(row.id, row.first_name, row.last_name)
 
 
-loop = asyncio.new_event_loop()
+loop = asyncio.get_event_loop()
 loop.run_until_complete(go())
