@@ -116,7 +116,6 @@ async def get_list(engine, filter: dict, order: List[dict], limit: int, offset: 
                 fword = filter['last_name']['ilike']
                 async for row in conn.execute(peop.select()):
                     if fword.lower() in row.last_name.lower():
-                        print(row.id, row.first_name, row.last_name)
                         result_ln.append({"id": row.id, "first_name": row.first_name, "last_name": row.last_name})
         #Фильтр по имени
             result_fn = [] #Результат фильтра по имени
@@ -145,12 +144,22 @@ async def get_list(engine, filter: dict, order: List[dict], limit: int, offset: 
                     j += 1
                 i += 1
             #order сортировка
-            print(result)
             if 'asc' in order[0]['direction']:
                 result.sort(key=lambda d: d[order[0]['field']], reverse = False)
             elif 'desc' in order[0]['direction']:
                 result.sort(key=lambda d: d[order[0]['field']], reverse=True)
-                print(result)
+
+            res = []
+            #limit и offset
+            f = 0
+            while f < len(result):
+                if (f >= offset and f < limit):
+                    res.append(result[int(f)])
+                f+=1
+
+            for i in range(len(res)):
+                print(res[i]['id'], res[i]['first_name'], res[i]['last_name'])
+
 
 
 async def get_count(engine, filter: dict) -> int:
@@ -218,7 +227,7 @@ async def go():
 
 
         # await set(engine, {"id": "2", "first_name": "rer", "last_name": "fef"})
-        await get_list(engine, {"first_name": {"like": "3"}, "last_name": {"ilike": "A"}}, [{"field": "id", "direction": "asc"}], 10, 0)
+        await get_list(engine, {"first_name": {"like": ""}, "last_name": {"ilike": "A"}}, [{"field": "id", "direction": "asc"}], 4, 0)
         # await get(engine, "2")
         # await get_count(engine, {"first_name": {"like": ""}, "last_name": {"ilike": "a"}})
         # await delete(engine, {"id": "1", "first_name": "rer", "last_name": "fef"})
