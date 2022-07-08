@@ -74,7 +74,7 @@ async def add(engine, person: dict) -> str:
         return x
 
 # Изменение строки, находим по id
-async def set(engine, person: dict):
+async def set_m(engine, person: dict):
     async with engine.acquire() as conn:
         await conn.execute(sa.update(peop).values(first_name=person['first_name'], last_name=person['last_name']).where(peop.c.id == person['id']))
 
@@ -93,11 +93,12 @@ async def get(engine, id: str) -> dict:
 # Вывод всех значений таблицы
 async def get_all(engine):
     async with engine.acquire() as conn:
+        res = []
         async for row in conn.execute(peop.select()):
-            print(row.id, row.first_name, row.last_name)
+            res.append({"id": row.id, "first_name": row.first_name, "last_name": row.last_name})
+        return res
 
-def custom_key(people):
-    return people[0]
+
 # Получение выборки по фильтрам
 async def get_list(engine, filter: dict, order: List[dict], limit: int, offset: int) -> List[dict]:
     async with engine.acquire() as conn:
@@ -153,12 +154,18 @@ async def get_list(engine, filter: dict, order: List[dict], limit: int, offset: 
             #limit и offset
             f = 0
             while f < len(result):
-                if (f >= offset and f < limit):
+                if (f >= offset):
                     res.append(result[int(f)])
                 f+=1
-
-            for i in range(len(res)):
-                print(res[i]['id'], res[i]['first_name'], res[i]['last_name'])
+            result = []
+            f = 0
+            while f < len(res):
+                if (f < limit):
+                    result.append(res[int(f)])
+                f += 1
+            for i in range(len(result)):
+                print(result[i]['id'], result[i]['first_name'], result[i]['last_name'])
+            return result
 
 
 
@@ -227,7 +234,7 @@ async def go():
 
 
         # await set(engine, {"id": "2", "first_name": "rer", "last_name": "fef"})
-        await get_list(engine, {"first_name": {"like": ""}, "last_name": {"ilike": "A"}}, [{"field": "id", "direction": "asc"}], 4, 0)
+        # await get_list(engine, {"first_name": {"like": ""}, "last_name": {"ilike": "A"}}, [{"field": "id", "direction": "asc"}], 4, 0)
         # await get(engine, "2")
         # await get_count(engine, {"first_name": {"like": ""}, "last_name": {"ilike": "a"}})
         # await delete(engine, {"id": "1", "first_name": "rer", "last_name": "fef"})
@@ -238,7 +245,7 @@ async def go():
         #
         #     async for row in conn.execute(peop.select()):
         #         print(row.id, row.first_name, row.last_name)
-        # await get_all(engine)
+        print(await get_all(engine))
 
 
 loop = asyncio.get_event_loop()
