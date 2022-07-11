@@ -1,8 +1,0 @@
-2022-07-08 10:41:23,708 - app - DEBUG - Init camera
-2022-07-08 10:41:23,721 - app - ERROR - Error init video streams
-Traceback (most recent call last):
-  File "C:\projects\crud_db\crud_db\app.py", line 49, in on_app_start
-    await app['scanner'].init_device()  # инициализируем подключение к камере
-  File "C:\projects\crud_db\venv2\lib\site-packages\aiohttp\web_app.py", line 186, in __getitem__
-    return self._state[key]
-KeyError: 'scanner'
