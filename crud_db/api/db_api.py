@@ -1,9 +1,6 @@
 import logging
 from aiohttp_jsonrpc import handler
-from aiopg.sa import engine, create_engine
-
-from aiohttp import web
-from typing import Union, List
+from typing import List
 
 from crud_db.db_people.init_db import get_all, get, add, set_m, delete, get_list, get_count
 

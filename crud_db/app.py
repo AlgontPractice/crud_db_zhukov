@@ -1,20 +1,16 @@
 """
 Application factory module
 """
-import asyncio
 import logging
 import logging.config
 import socket
 from asyncio import AbstractEventLoop
-from typing import List
 
 import aiohttp_cors
 from aiohttp import web
 from aiopg.sa import create_engine
 
 from crud_db.api.db_api import JSONRPC_crud
-
-from crud_db.db_people import init_db
 
 
 logger = logging.getLogger('app')
@@ -34,11 +30,6 @@ async def on_app_start(app):
                              database='people_onion',
                              host='192.168.1.245',
                              password='postgres')
-    # async with create_engine(user='postgres',
-    #                          database='people_onion',
-    #                          host='192.168.1.245',
-    #                          password='postgres') as engine:
-    #     await get_all(engine)
 
 
 async def on_app_stop(app):
